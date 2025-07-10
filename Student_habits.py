@@ -223,4 +223,32 @@ class ReportExporter:
     
 # Example usage
 if __name__ == "__main__":
+    loader = DataLoader('student_habits_performance.csv')
+    df = loader.load_data()
+    if df is not None:
+        cleaner = DataCleaner(df)
+        cleaner.Values_Missing()
+        cleaner.duplicates_verification()
+        cleaner.Validate_data_Range()
 
+        analysis = StudentPerformanceAnalysis(df)
+        analysis.mean_median_study_by_mental_health()
+        analysis.exam_sleep_correlation()
+        analysis.scoial_media_outliers()
+
+        visualizer = VisualizationEngine(df)
+        visualizer.study_time_histogram()
+        visualizer.sleep_vs_exam_scores()
+        visualizer.scores_by_diet_quality()
+
+        predictor = ScorePredictor(df)
+        predictor.train_model(['study_hours_per_day', 'sleep_hours'], 'exam_score')
+
+        report_exporter = ReportExporter()
+        report_exporter.add_section("Data Summary", "This section contains a summary of the data.")
+        report_exporter.save_markdown()
+        report_exporter.export_pdf()
+        print("Analysis and report generation completed.")
+    else:   
+        print("Data loading failed. Please check the file path and format.")
+# End of the code. 
