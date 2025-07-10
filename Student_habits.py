@@ -5,6 +5,9 @@ import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import LabelEncoder
 import os
+import pickle 
+import markdown
+import pdfkit 
 
 df = pd.read_csv('student_habits_performance.csv')
 # Display the first few rows of the DataFrame
@@ -116,6 +119,19 @@ class VisualizationEngine:
             plt.show()
         else:
             print("Study hours column not found in Dataset.")
+
+# Plots a scatter plot of sleep hours vs. exam scores.
+    def sleep_vs_exam_scores(self):
+        if 'sleep_hours' in self.df.columns and 'exam_score' in self.df.columns:
+            plt.figure(figsize=(10, 6))
+            sns.scatterplot(x='sleep_hours', y='exam_score', data=self.df)
+            plt.title('Sleep Hours vs Exam Scores')
+            plt.xlabel('Sleep Hours')
+            plt.ylabel('Exam Score')
+            plt.show()
+        else:
+            print("Required columns are missing for sleep vs exam scores analysis.")
+            return None
     
 # Plots boxplots of exam scores grouped by diet quality.
     def scores_by_diet_quality(self):
@@ -130,3 +146,81 @@ class VisualizationEngine:
         else:
             print("Required columns are missing for diet quality analysis.")
             return None
+
+class ScorePredictor:
+    def __init__(self, df):
+        self.df = df
+        self.model = LinearRegression()
+        self.label_encoder = LabelEncoder() 
+
+# Trains a linear regression model to predict exam scores based on study hours and sleep hours.
+    def train_model(self, feature_col, target_col):   #Validates columns and trains the model.
+        try:
+            for col in feature_col + [target_col]:
+                if col in self.df.columns:
+                    if self.df[col].dtype == 'object':
+                        self.df[col] = self.label_encoder.fit_transform(self.df[col])
+            self.model = LinearRegression()
+            X = self.df[feature_col]
+            y = self.df[target_col]
+
+            self.model.fit(X, y)
+            print("Model trained successfully.")     
+        except Exception as e:
+            print(f"An error occurred while training the model: {e}")
+
+def save_model(self, file_path):       
+        if not self.fitted:
+            print("Error: Cannot save an untrained model.")
+            return
+        try:
+            with open(file_path, 'wb') as f:
+                pickle.dump(self.model, f)
+            print(f"Model saved to {file_path}")
+        except Exception as e:
+            print(f"Error saving model: {e}")
+
+def load_model(self, file_path):      
+        try:
+            with open(file_path, 'rb') as f:
+                self.model = pickle.load(f)
+            self.fitted = True
+            print(f"Model loaded from {file_path}")
+        except Exception as e:
+            print(f"Error loading model: {e}")
+
+class ReportExporter:
+    def __init__(self, output_dir='report'):
+        self.output_dir = output_dir
+        os.makedirs(self.output_dir, exist_ok=True)
+        self.content = "# Student Analysis Report\n\n"
+
+    def add_section(self, title, text):
+        self.content += f"## {title}\n\n{text}\n\n"
+
+    def add_image(self, image_file, caption=""):
+        self.content += f"![{caption}]({image_file})\n\n"
+
+    def save_markdown(self, filename='report.md'):
+        path = os.path.join(self.output_dir, filename)
+        try:
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(self.content)
+            print(f"Markdown saved: {path}")
+        except PermissionError:
+            print(f"Permission denied writing Markdown: {path}")
+
+    def export_pdf(self, md_file='report.md', pdf_file='report.pdf'):
+        md_path = os.path.join(self.output_dir, md_file)
+        pdf_path = os.path.join(self.output_dir, pdf_file)
+        try:
+            with open(md_path, 'r', encoding='utf-8') as f:
+                html = markdown.markdown(f.read())
+            pdfkit.from_string(html, pdf_path)
+            print(f"PDF saved: {pdf_path}")
+        except PermissionError:
+            print(f"Permission denied writing PDF: {pdf_path}")
+    
+# Example usage
+if __name__ == "__main__":
+
