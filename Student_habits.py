@@ -100,3 +100,33 @@ class StudentPerformanceAnalysis:
             else:
                 print("Social media hours column not found.")
                 return None
+
+# This class will be used to visualize the data and the results of the analysis.
+class VisualizationEngine:
+    def __init__(self, df):
+        self.df = df
+# Plots a scatter plot of sleep hours vs. exam scores.
+    def study_time_histogram(self):
+        if 'study_hours_per_day' in self.df.columns:
+            plt.figure(figsize=(10, 6))
+            sns.histplot(self.df['study_hours_per_day'], bins=25, kde=True)
+            plt.title('Distribution of Study Hours per Day')
+            plt.xlabel('Study Hours per Day')
+            plt.ylabel('Frequency')
+            plt.show()
+        else:
+            print("Study hours column not found in Dataset.")
+    
+# Plots boxplots of exam scores grouped by diet quality.
+    def scores_by_diet_quality(self):
+        if 'diet_quality' in self.df.columns and 'exam_score' in self.df.columns:
+            plt.figure(figsize=(10, 6))
+            sns.boxplot(x='diet_quality', y='exam_score', data=self.df)
+            plt.title('Exam Scores by Diet Quality')
+            plt.xlabel('Diet Quality')
+            plt.ylabel('Exam Score')
+            plt.show()
+
+        else:
+            print("Required columns are missing for diet quality analysis.")
+            return None
