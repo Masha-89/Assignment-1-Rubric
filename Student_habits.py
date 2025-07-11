@@ -9,9 +9,10 @@ import pickle
 import markdown
 import pdfkit 
 
-df = pd.read_csv('student_habits_performance.csv')
+df = pd.read_csv('student_habits_performance.csv', delimiter = ';')
 # Display the first few rows of the DataFrame
 # print(df.head())
+# print(df.columns)
 
 # This class will be used to encapsulate the functionality of loading data from a CSV file.
 class DataLoader:
@@ -55,11 +56,11 @@ class DataCleaner:
 
     def Validate_data_Range(self):
      
-        if 'Age' in self.df.columns:
-            invalid_age = self.df[(self.df['Age'] < 0) | (self.df['Age'] > 100)]
+        if 'age' in self.df.columns:
+            invalid_age = self.df[(self.df['age'] < 0) | (self.df['age'] > 100)]
             if not invalid_age.empty:
                 print(f"Invalid ages found:\n{invalid_age}")
-                self.df = self.df[(self.df['Age'] >= 0) & (self.df['Age'] <= 100)]
+                self.df = self.df[(self.df['age'] >= 0) & (self.df['age'] <= 100)]
                 print("Invalid ages removed.")
             else:
                 print("All ages are valid.")
@@ -71,17 +72,17 @@ class StudentPerformanceAnalysis:
     def __init__(self, df):
         self.df = df
 
-        def mean_median_study_by_mental_health(self):
-            if 'mental_health_ratin' not in self.df.columns or 'study_hours_per_day' not in self.df.columns:
-                group = self.df.groupby('mental_health_ratin')['study_hours_per_day'].agg(['mean', 'median'])
-                print("Mean and median study hours per day by mental health rating:")
-                print(group)
-
+    def mean_median_study_by_mental_health(self):
+            if 'mental_health_rating' in self.df.columns or 'study_hours_per_day' in self.df.columns:
+               grouped = self.df.groupby('mental_health_rating')['study_hours_per_day']
+               group = grouped.agg(['mean', 'median']).reset_index()
+               print("Mean and median study hours per day by mental health rating:")
+               print(group)
             else:
-                print("Required columns are missing for analysis.")
-                return None
+                 print("Required columns are missing for analysis.")
+            return None
             
-        def exam_sleep_correlation(self):
+    def exam_sleep_correlation(self):
             if 'exam_score' in self.df.columns and 'sleep_hours' in self.df.columns:
              correlation = self.df['exam_score'].corr(self.df['sleep_hours'])
              print(f"Correlation between exam scores and sleeping hours: {correlation}")
@@ -89,7 +90,7 @@ class StudentPerformanceAnalysis:
                 print("Required columns are missing for correlation analysis.")
             return None
         
-        def scoial_media_outliers(self):
+    def scoial_media_outliers(self):
             if 'social_media_hours' in self.df.columns:
                 Q1 = self.df['social_media_hours'].quantile(0.25)
                 Q3 = self.df['social_media_hours'].quantile(0.75)
