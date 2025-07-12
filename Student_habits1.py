@@ -9,6 +9,7 @@ import pickle
 import markdown
 import pdfkit 
 
+# This script is designed to analyze student habits and their impact on academic performance.
 df = pd.read_csv('student_habits_performance.csv', delimiter = ';')
 # Display the first few rows of the DataFrame
 # print(df.head())
@@ -23,7 +24,7 @@ class DataLoader:
         
     def load_data(self):
         try:
-            df = pd.read_csv(self.file_path)
+            df = pd.read_csv(self.file_path, delimiter=';')
             print("Data loaded successfully.")
             return df
         except Exception as e:
@@ -152,10 +153,10 @@ class ScorePredictor:
     def __init__(self, df):
         self.df = df
         self.model = LinearRegression()
-        self.label_encoder = LabelEncoder() 
+        self.label_encoder = LabelEncoder()
+        self.fitted = False
 
-# Trains a linear regression model to predict exam scores based on study hours and sleep hours.
-    def train_model(self, feature_col, target_col):   #Validates columns and trains the model.
+    def train_model(self, feature_col, target_col):
         try:
             for col in feature_col + [target_col]:
                 if col in self.df.columns:
@@ -164,13 +165,13 @@ class ScorePredictor:
             self.model = LinearRegression()
             X = self.df[feature_col]
             y = self.df[target_col]
-
             self.model.fit(X, y)
-            print("Model trained successfully.")     
+            self.fitted = True
+            print("Model trained successfully.")
         except Exception as e:
             print(f"An error occurred while training the model: {e}")
 
-def save_model(self, file_path):       
+    def save_model(self, file_path):
         if not self.fitted:
             print("Error: Cannot save an untrained model.")
             return
@@ -181,7 +182,7 @@ def save_model(self, file_path):
         except Exception as e:
             print(f"Error saving model: {e}")
 
-def load_model(self, file_path):      
+    def load_model(self, file_path):
         try:
             with open(file_path, 'rb') as f:
                 self.model = pickle.load(f)
@@ -247,9 +248,16 @@ if __name__ == "__main__":
 
         report_exporter = ReportExporter()
         report_exporter.add_section("Data Summary", "This section contains a summary of the data.")
+        print("Markdown saved. Looking for PDF export next...")
         report_exporter.save_markdown()
+        print("Attempting PDF export...")
         report_exporter.export_pdf()
+        print("Done. Check the /report folder for output.")
         print("Analysis and report generation completed.")
     else:   
         print("Data loading failed. Please check the file path and format.")
+
+
+        import webbrowser
+        webbrowser.open(os.path.join('report', 'report.pdf'))
 # End of the code. 
